@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Як читати більше: інтерактивна інструкція</title>
+    <!-- Підключення Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Підключення шрифтів Inter та Merriweather для затишної книжкової атмосфери -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    colors: {
+                        paper: '#FAF6F0',
+                        paperDark: '#F2EBE1',
+                        cardBg: '#FFFFFF',
+                        ink: '#2C2520',
+                        inkLight: '#635850',
+                        terracotta: '#C85A32',
+                        terracottaHover: '#B04A24',
+                        olive: '#5A6B47',
+                        oliveLight: '#EBF0E6',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Плавна прокрутка та стилізація повзунка */
+        html {
+            scroll-behavior: smooth;
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #E2D8C8;
+            height: 0.5rem;
+            border-radius: 0.5rem;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -6px;
+            background-color: #C85A32;
+            height: 1.25rem;
+            width: 1.25rem;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.15s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+        /* Анімація підсвічування рекомендованих карток */
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 0 3px rgba(200, 90, 50, 0.35); }
+            50% { box-shadow: 0 0 0 6px rgba(200, 90, 50, 0.15); }
+        }
+        .highlight-tip {
+            border-color: #C85A32 !important;
+            animation: pulseGlow 2s infinite;
+            background-color: #FFFBF8 !important;
+        }
+    </style>
+</head>
+<body class="bg-paper text-ink font-sans antialiased selection:bg-terracotta selection:text-white">
+
+    <!-- Верхня панель з динамічним прогресом -->
+    <header class="sticky top-0 z-40 bg-paper/95 backdrop-blur-md border-b border-[#E5DDD0] shadow-sm transition-all">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <span class="text-2xl" aria-hidden="true">📚</span>
+                <div>
+                    <h1 class="font-serif font-bold text-lg sm:text-xl text-ink leading-tight">Як читати більше</h1>
+                    <p class="text-xs text-inkLight">Інтерактивний гайд на основі 13 порад Yakaboo</p>
+                </div>
+            </div>
+
+            <!-- Трекер прогресу читача -->
+            <div class="flex items-center gap-3 bg-paperDark px-3.5 py-2 rounded-xl border border-[#E2D8C8]">
+                <div class="flex-1 sm:w-48">
+                    <div class="flex justify-between items-center text-xs font-semibold mb-1">
+                        <span id="reader-rank" class="text-olive">Читач-початківець</span>
+                        <span id="progress-counter" class="text-ink">0 / 13 звичок</span>
+                    </div>
+                    <div class="w-full bg-[#DFD5C5] h-2 rounded-full overflow-hidden">
+                        <div id="progress-bar" class="bg-olive h-full rounded-full transition-all duration-500 ease-out" style="width: 0%"></div>
+                    </div>
+                </div>
+                <button id="reset-progress-btn" title="Скинути прогрес" class="text-xs text-inkLight hover:text-terracotta p-1.5 rounded-lg hover:bg-paper transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-10">
+
+        <!-- Hero-блок та інтерактивні інструменти (Підбір рішення + Калькулятор) -->
+        <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Блок 1: Підбір рішення під перешкоду -->
+            <div class="lg:col-span-7 bg-cardBg rounded-2xl p-6 sm:p-7 border border-[#E6DEC8] shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-oliveLight text-olive text-xs font-semibold mb-3">
+                        <span>🧭</span> Швидка діагностика
+                    </div>
+                    <h2 class="font-serif font-bold text-xl sm:text-2xl text-ink mb-2">Що заважає вам читати зараз?</h2>
+                    <p class="text-sm text-inkLight mb-5">Оберіть вашу головну перешкоду — ми підсвітимо потрібні картки нижче та сформуємо персональний план дій.</p>
+                    
+                    <!-- Кнопки перешкод -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5" id="obstacle-buttons">
+                        <button data-obstacle="time" class="obstacle-btn text-left px-4 py-3 rounded-xl border border-[#E2D8C8] hover:border-terracotta bg-paper/50 hover:bg-paper transition-all flex items-center gap-3 font-medium text-sm">
+                            <span class="text-lg">⏳</span>
+                            <span>Немає часу</span>
+                        </button>
+                        <button data-obstacle="commute" class="obstacle-btn text-left px-4 py-3 rounded-xl border border-[#E2D8C8] hover:border-terracotta bg-paper/50 hover:bg-paper transition-all flex items-center gap-3 font-medium text-sm">
+                            <span class="text-lg">🚇</span>
+                            <span>Часто в дорозі / чергах</span>
+                        </button>
+                        <button data-obstacle="boredom" class="obstacle-btn text-left px-4 py-3 rounded-xl border border-[#E2D8C8] hover:border-terracotta bg-paper/50 hover:bg-paper transition-all flex items-center gap-3 font-medium text-sm">
+                            <span class="text-lg">🥱</span>
+                            <span>Швидко втрачаю інтерес</span>
+                        </button>
+                        <button data-obstacle="motivation" class="obstacle-btn text-left px-4 py-3 rounded-xl border border-[#E2D8C8] hover:border-terracotta bg-paper/50 hover:bg-paper transition-all flex items-center gap-3 font-medium text-sm">
+                            <span class="text-lg">🔋</span>
+                            <span>Бракує мотивації</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Контейнер для плану дій -->
+                <div id="action-plan-box" class="bg-paperDark rounded-xl p-4 border border-[#E2D8C8] transition-all">
+                    <div id="action-plan-placeholder" class="text-sm text-inkLight flex items-center gap-2">
+                        <span>💡</span>
+                        <span>Натисніть на одну з кнопок вище, щоб отримати готовий рецепт дій.</span>
+                    </div>
+                    <div id="action-plan-content" class="hidden space-y-2">
+                        <div class="flex items-center justify-between">
+                            <h3 id="plan-title" class="font-bold text-terracotta text-sm uppercase tracking-wide"></h3>
+                            <button id="clear-obstacle-btn" class="text-xs text-inkLight hover:text-ink underline">Скинути фільтр</button>
+                        </div>
+                        <p id="plan-desc" class="text-sm text-ink leading-relaxed"></p>
+                        <div class="pt-1">
+                            <a href="#tips-section" class="inline-flex items-center gap-1 text-xs font-semibold text-olive hover:underline">
+                                Переглянути підсвічені поради нижче ↓
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Блок 2: Міні-калькулятор читання -->
+            <div class="lg:col-span-5 bg-cardBg rounded-2xl p-6 sm:p-7 border border-[#E6DEC8] shadow-sm flex flex-col justify-between">
+                <div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FBECE6] text-terracotta text-xs font-semibold mb-3">
+                        <span>⏱️</span> Калькулятор часу
+                    </div>
+                    <h2 class="font-serif font-bold text-xl sm:text-2xl text-ink mb-2">Замість стрічки соцмереж</h2>
+                    <p class="text-sm text-inkLight mb-5">Скільки книг ви прочитаєте за рік, якщо заміните скролінг на читання (у середньому 1 сторінка = 1.5 хв)?</p>
+
+                    <!-- Слайдер -->
+                    <div class="mb-6 bg-paper p-4 rounded-xl border border-[#E6DEC8]">
+                        <div class="flex justify-between items-baseline mb-2">
+                            <label for="minutes-slider" class="text-xs font-semibold uppercase tracking-wider text-inkLight">Час на день:</label>
+                            <span class="text-2xl font-bold text-terracotta"><span id="minutes-value">30</span> <span class="text-sm font-normal text-ink">хв/день</span></span>
+                        </div>
+                        <input type="range" id="minutes-slider" min="15" max="120" step="5" value="30" class="w-full">
+                        <div class="flex justify-between text-[11px] text-inkLight mt-1.5">
+                            <span>15 хв</span>
+                            <span>45 хв</span>
+                            <span>75 хв</span>
+                            <span>120 хв</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Результати розрахунку -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-oliveLight/70 border border-olive/20 rounded-xl p-3.5 text-center">
+                        <div id="pages-month" class="text-2xl sm:text-3xl font-serif font-bold text-olive">600</div>
+                        <div class="text-xs text-inkLight mt-1">сторінок на місяць</div>
+                    </div>
+                    <div class="bg-[#FBECE6]/70 border border-terracotta/20 rounded-xl p-3.5 text-center">
+                        <div id="books-year" class="text-2xl sm:text-3xl font-serif font-bold text-terracotta">24</div>
+                        <div class="text-xs text-inkLight mt-1">книг на рік <span class="block text-[10px]">(по 300 стор.)</span></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Секція 13 порад з фільтрами -->
+        <section id="tips-section" class="space-y-6 pt-2">
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5DDD0] pb-4">
+                <div>
+                    <h2 class="font-serif font-bold text-2xl sm:text-3xl text-ink">13 кроків до регулярного читання</h2>
+                    <p class="text-sm text-inkLight mt-1">Відмічайте звички, які ви вже застосовуєте або плануєте впровадити цього тижня.</p>
+                </div>
+
+                <!-- Фільтри за категоріями -->
+                <div class="flex flex-wrap gap-2" id="category-filters">
+                    <button data-category="all" class="filter-btn active px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-ink text-white transition-all shadow-sm">
+                        Усі 13 порад
+                    </button>
+                    <button data-category="time" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-cardBg text-ink border border-[#E2D8C8] hover:border-ink transition-all">
+                        1. Пріоритети та час
+                    </button>
+                    <button data-category="access" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-cardBg text-ink border border-[#E2D8C8] hover:border-ink transition-all">
+                        2. Доступність та вибір
+                    </button>
+                    <button data-category="atmosphere" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-cardBg text-ink border border-[#E2D8C8] hover:border-ink transition-all">
+                        3. Атмосфера
+                    </button>
+                    <button data-category="social" class="filter-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-medium bg-cardBg text-ink border border-[#E2D8C8] hover:border-ink transition-all">
+                        4. Соціальна мотивація
+                    </button>
+                </div>
+            </div>
+
+            <!-- Сітка карток з порадами -->
+            <div id="tips-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Картки генеруються через JavaScript -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Футер -->
+    <footer class="bg-paperDark border-t border-[#E2D8C8] mt-16 py-8">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-inkLight">
+            <p>Створено як інтерактивний посібник на основі статті блогу <span class="font-semibold text-ink">Yakaboo</span> «13 порад, щоб спробувати читати більше».</p>
+            <p>Ваш прогрес автоматично зберігається у браузері 📖</p>
+        </div>
+    </footer>
+
+    <!-- Сповіщення (Toast) замість alert() -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-ink text-white px-4 py-3 rounded-xl shadow-lg text-sm flex items-center gap-2.5">
+        <span id="toast-icon">✨</span>
+        <span id="toast-message">Прогрес оновлено!</span>
+    </div>
+
+    <script>
+        // База даних 13 порад зі статті Yakaboo
+        const tipsData = [
+            {
+                id: 1,
+                category: 'time',
+                categoryLabel: '1. Пріоритети та час',
+                title: 'Визначте читання як пріоритет',
+                description: 'Головна причина браку часу — питання пріоритетів. Сприймайте книгу як задоволення та відпочинок, а не обов’язок — тоді час знайдеться сам.',
+                tag: 'Мислення',
+                obstacles: ['time', 'motivation']
+            },
+            {
+                id: 2,
+                category: 'time',
+                categoryLabel: '1. Пріоритети та час',
+                title: 'Виділіть фіксований час у добі',
+                description: 'Зарезервуйте хоча б 30 хвилин щодня: зранку за кавою, під час обіду або перед сном. Регулярність перетворює режим на стійку звичку.',
+                tag: '30 хв/день',
+                obstacles: ['time']
+            },
+            {
+                id: 3,
+                category: 'time',
+                categoryLabel: '1. Пріоритети та час',
+                title: 'Встановіть щоденний мінімум',
+                description: 'Визначте комфортну норму — наприклад, 50 сторінок на день перед сном, або ж зробіть ставку на глибоке читання у вихідні дні.',
+                tag: 'Норма сторінок',
+                obstacles: ['time', 'motivation']
+            },
+            {
+                id: 4,
+                category: 'time',
+                categoryLabel: '1. Пріоритети та час',
+                title: 'Вимкніть сповіщення соцмереж',
+                description: 'Година-дві, зекономлені на скролінгу стрічки новин, легко конвертуються в десятки прочитаних сторінок або цілу невелику книгу.',
+                tag: 'Цифровий детокс',
+                obstacles: ['time']
+            },
+            {
+                id: 5,
+                category: 'access',
+                categoryLabel: '2. Доступність та вибір',
+                title: 'Тримайте книгу завжди під рукою',
+                description: 'Носіть паперову книгу в сумці або завантажте електронні версії на смартфон, щоб заповнювати паузи: черги, транспорт чи очікування.',
+                tag: 'Завжди з собою',
+                obstacles: ['commute', 'time']
+            },
+            {
+                id: 6,
+                category: 'access',
+                categoryLabel: '2. Доступність та вибір',
+                title: 'Створіть власний книжковий запас',
+                description: 'Формуйте домашню бібліотеку, запишіться до міської або обмінюйтеся книгами з друзями, щоб завжди мати вибір, що читати далі.',
+                tag: 'Бібліотека',
+                obstacles: ['commute', 'boredom']
+            },
+            {
+                id: 7,
+                category: 'access',
+                categoryLabel: '2. Доступність та вибір',
+                title: 'Чергуйте жанри та авторів',
+                description: 'Поєднуйте сучасну прозу, класику, нон-фікшн, детективи чи навіть дитячу літературу — це збагачує мислення та не дає втомлюватися.',
+                tag: 'Різноманіття',
+                obstacles: ['boredom']
+            },
+            {
+                id: 8,
+                category: 'access',
+                categoryLabel: '2. Доступність та вибір',
+                title: 'Не бійтеся кидати нудні книги',
+                description: 'Якщо книга не захоплює і змушує страждати — закривайте її без докорів сумління. Примус вбиває бажання читати, а вдала історія повертає азарт.',
+                tag: 'Право вибору',
+                obstacles: ['boredom', 'motivation']
+            },
+            {
+                id: 9,
+                category: 'atmosphere',
+                categoryLabel: '3. Атмосфера',
+                title: 'Відвідуйте книгарні без мети купити',
+                description: 'Прогулянки між полицями, гортання нових видань та тактильний контакт із якісним папером створюють особливий настрій і надихають.',
+                tag: 'Натхнення',
+                obstacles: ['boredom', 'motivation']
+            },
+            {
+                id: 10,
+                category: 'social',
+                categoryLabel: '4. Соціальна мотивація',
+                title: 'Знайдіть книжкове середовище',
+                description: 'Долучайтеся до онлайн- або офлайн-спільнот та книжкових клубів, щоб ділитися враженнями, дізнаватися про новинки та отримувати поради.',
+                tag: 'Спільнота',
+                obstacles: ['motivation']
+            },
+            {
+                id: 11,
+                category: 'social',
+                categoryLabel: '4. Соціальна мотивація',
+                title: 'Фіксуйте та обговорюйте прочитане',
+                description: 'Пишіть короткі відгуки у соцмережах або розповідайте про сюжети знайомим — живі дискусії та рефлексія мотивують рухатися далі.',
+                tag: 'Відгуки',
+                obstacles: ['motivation']
+            },
+            {
+                id: 12,
+                category: 'social',
+                categoryLabel: '4. Соціальна мотивація',
+                title: 'Читайте в парі з другом',
+                description: 'Оберіть одну книгу з другом, партнером чи колегою, щоб читати паралельно, влаштувати дружнє змагання на швидкість і обговорити фінал.',
+                tag: 'Парне читання',
+                obstacles: ['motivation', 'boredom']
+            },
+            {
+                id: 13,
+                category: 'social',
+                categoryLabel: '4. Соціальна мотивація',
+                title: 'Беріть участь у книжкових марафонах',
+                description: 'Елемент гри, чіткі цілі за кількістю прочитаного або шанс виграти нову книгу стають чудовим зовнішнім стимулом не зупинятися.',
+                tag: 'Гейміфікація',
+                obstacles: ['motivation', 'time']
+            }
+        ];
+
+        // Дані для блоку «Підбір рішення під вашу перешкоду»
+        const obstaclesInfo = {
+            time: {
+                title: 'План дій: Як знайти час на книги',
+                desc: 'Почніть із правила «30 фіксованих хвилин» зранку або перед сном та вимкніть push-сповіщення у соцмережах. Замість безцільного скролінгу перед сном встановіть комфортний мінімум (наприклад, 20–50 сторінок).'
+            },
+            commute: {
+                title: 'План дій: Читання в дорозі та чергах',
+                desc: 'Завантажте зручний рідер на смартфон або носіть легку книгу в покетбуці. Кожні 10 хвилин у транспорті чи черзі за кавою перетворяться на 2–3 прочитані книги на місяць.'
+            },
+            boredom: {
+                title: 'План дій: Як повернути азарт до читання',
+                desc: 'Дозвольте собі закрити нудну книгу на 30-й сторінці! Чергуйте складний нон-фікшн із захопливими детективами чи фентезі та завітайте до книгарні просто за атмосферою.'
+            },
+            motivation: {
+                title: 'План дій: Соціальний драйв та підтримка',
+                desc: 'Запропонуйте другу прочитати одну книгу на двох, долучіться до книжкового марафону або почніть ділитися короткими враженнями після кожної прочитаної історії.'
+            }
+        };
+
+        // Стан додатку
+        let completedTips = JSON.parse(localStorage.getItem('yakaboo_reading_habits')) || [];
+        let currentCategory = 'all';
+        let activeObstacle = null;
+
+        // DOM-елементи
+        const tipsGrid = document.getElementById('tips-grid');
+        const progressBar = document.getElementById('progress-bar');
+        const progressCounter = document.getElementById('progress-counter');
+        const readerRank = document.getElementById('reader-rank');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+        const obstacleBtns = document.querySelectorAll('.obstacle-btn');
+        const actionPlanPlaceholder = document.getElementById('action-plan-placeholder');
+        const actionPlanContent = document.getElementById('action-plan-content');
+        const planTitle = document.getElementById('plan-title');
+        const planDesc = document.getElementById('plan-desc');
+        const clearObstacleBtn = document.getElementById('clear-obstacle-btn');
+        const resetProgressBtn = document.getElementById('reset-progress-btn');
+
+        // Елементи калькулятора
+        const minutesSlider = document.getElementById('minutes-slider');
+        const minutesValue = document.getElementById('minutes-value');
+        const pagesMonth = document.getElementById('pages-month');
+        const booksYear = document.getElementById('books-year');
+
+        // Функція показу спливаючого повідомлення (Toast)
+        let toastTimeout;
+        function showToast(message, icon = '✨') {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').textContent = message;
+            document.getElementById('toast-icon').textContent = icon;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+
+        // Оновлення шкали прогресу та рангу читача
+        function updateProgressUI() {
+            const count = completedTips.length;
+            const total = tipsData.length;
+            const percentage = Math.round((count / total) * 100);
+
+            progressBar.style.width = `${percentage}%`;
+            progressCounter.textContent = `${count} / ${total} звичок`;
+
+            let rank = 'Читач-початківець';
+            if (count >= 1 && count <= 3) rank = 'Шукач історій';
+            else if (count >= 4 && count <= 7) rank = 'Впевнений книголюб';
+            else if (count >= 8 && count <= 11) rank = 'Майстер читання';
+            else if (count >= 12) rank = 'Амбасадор книг 🏆';
+
+            readerRank.textContent = rank;
+            localStorage.setItem('yakaboo_reading_habits', JSON.stringify(completedTips));
+        }
+
+        // Перемикання статусу звички (чекбокс)
+        function toggleTip(id) {
+            const index = completedTips.indexOf(id);
+            if (index === -1) {
+                completedTips.push(id);
+                showToast('Звичку додано до вашого арсеналу!', '📖');
+            } else {
+                completedTips.splice(index, 1);
+            }
+            updateProgressUI();
+            renderTips();
+        }
+
+        // Рендеринг карток порад
+        function renderTips() {
+            tipsGrid.innerHTML = '';
+
+            const filteredTips = currentCategory === 'all' 
+                ? tipsData 
+                : tipsData.filter(tip => tip.category === currentCategory);
+
+            filteredTips.forEach(tip => {
+                const isCompleted = completedTips.includes(tip.id);
+                const isHighlighted = activeObstacle && tip.obstacles.includes(activeObstacle);
+
+                const card = document.createElement('article');
+                card.className = `relative rounded-2xl p-6 border transition-all duration-300 flex flex-col justify-between ${
+                    isCompleted 
+                        ? 'bg-[#F4F7F0] border-olive/40 shadow-sm' 
+                        : 'bg-cardBg border-[#E6DEC8] hover:border-[#D0C3AE] shadow-sm'
+                } ${isHighlighted ? 'highlight-tip' : ''}`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex items-center justify-between gap-2 mb-3">
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${
+                                isCompleted ? 'bg-olive text-white' : 'bg-paperDark text-ink'
+                            }">
+                                ${tip.id}
+                            </span>
+                            <div class="flex items-center gap-1.5">
+                                ${isHighlighted ? '<span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-terracotta text-white">Рекомендовано</span>' : ''}
+                                <span class="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-paper text-inkLight border border-[#E6DEC8]">
+                                    ${tip.tag}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] font-semibold text-olive mb-1">${tip.categoryLabel}</div>
+                        <h3 class="font-serif font-bold text-lg text-ink mb-2.5 leading-snug ${isCompleted ? 'line-through decoration-olive/50 text-ink/80' : ''}">
+                            ${tip.title}
+                        </h3>
+                        <p class="text-sm text-inkLight leading-relaxed mb-5">
+                            ${tip.description}
+                        </p>
+                    </div>
+
+                    <div class="pt-3 border-t border-[#ECE4D5] flex items-center justify-between">
+                        <label class="inline-flex items-center gap-2.5 cursor-pointer select-none group w-full py-1">
+                            <input type="checkbox" ${isCompleted ? 'checked' : ''} onchange="toggleTip(${tip.id})" class="sr-only peer">
+                            <div class="w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors ${
+                                isCompleted 
+                                    ? 'bg-olive border-olive text-white' 
+                                    : 'border-[#C8BFA8] bg-paper group-hover:border-terracotta'
+                            }">
+                                ${isCompleted ? '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                            </div>
+                            <span class="text-xs font-semibold ${isCompleted ? 'text-olive' : 'text-ink group-hover:text-terracotta'} transition-colors">
+                                ${isCompleted ? 'Впроваджено ✓' : 'Спробувати / Впровадити'}
+                            </span>
+                        </label>
+                    </div>
+                `;
+
+                tipsGrid.appendChild(card);
+            });
+        }
+
+        // Обробка фільтрів категорій
+        filterBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                currentCategory = btn.dataset.category;
+                
+                filterBtns.forEach(b => {
+                    b.classList.remove('bg-ink', 'text-white', 'font-semibold');
+                    b.classList.add('bg-cardBg', 'text-ink', 'font-medium');
+                });
+                btn.classList.remove('bg-cardBg', 'text-ink', 'font-medium');
+                btn.classList.add('bg-ink', 'text-white', 'font-semibold');
+
+                renderTips();
+            });
+        });
+
+        // Обробка вибору перешкоди
+        obstacleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const selected = btn.dataset.obstacle;
+                
+                if (activeObstacle === selected) {
+                    clearObstacle();
+                    return;
+                }
+
+                activeObstacle = selected;
+
+                // Скидаємо категорію на "Усі", щоб користувач бачив усі підсвічені картки
+                if (currentCategory !== 'all') {
+                    document.querySelector('[data-category="all"]').click();
+                }
+
+                obstacleBtns.forEach(b => {
+                    b.classList.remove('border-terracotta', 'bg-[#FBECE6]/60', 'ring-2', 'ring-terracotta/30');
+                });
+                btn.classList.add('border-terracotta', 'bg-[#FBECE6]/60', 'ring-2', 'ring-terracotta/30');
+
+                const info = obstaclesInfo[selected];
+                planTitle.textContent = info.title;
+                planDesc.textContent = info.desc;
+                actionPlanPlaceholder.classList.add('hidden');
+                actionPlanContent.classList.remove('hidden');
+
+                renderTips();
+                showToast('Підібрано відповідні поради нижче!', '🧭');
+            });
+        });
+
+        function clearObstacle() {
+            activeObstacle = null;
+            obstacleBtns.forEach(b => {
+                b.classList.remove('border-terracotta', 'bg-[#FBECE6]/60', 'ring-2', 'ring-terracotta/30');
+            });
+            actionPlanContent.classList.add('hidden');
+            actionPlanPlaceholder.classList.remove('hidden');
+            renderTips();
+        }
+
+        clearObstacleBtn.addEventListener('click', clearObstacle);
+
+        // Скидання прогресу звичок
+        resetProgressBtn.addEventListener('click', () => {
+            if (completedTips.length === 0) {
+                showToast('Ваш список звичок ще порожній', 'ℹ️');
+                return;
+            }
+            completedTips = [];
+            updateProgressUI();
+            renderTips();
+            showToast('Прогрес скинуто', '🔄');
+        });
+
+        // Логіка міні-калькулятора читання
+        function updateCalculator() {
+            const mins = parseInt(minutesSlider.value, 10);
+            minutesValue.textContent = mins;
+
+            // Середня швидкість комфортного читання: 1 сторінка за 1.5 хвилини (40 стор/год)
+            const pagesPerDay = mins / 1.5;
+            const monthlyPages = Math.round(pagesPerDay * 30);
+            const yearlyPages = pagesPerDay * 365;
+            const yearlyBooks = Math.round(yearlyPages / 300);
+
+            pagesMonth.textContent = monthlyPages.toLocaleString('uk-UA');
+            booksYear.textContent = yearlyBooks;
+        }
+
+        minutesSlider.addEventListener('input', updateCalculator);
+
+        // Ініціалізація при завантаженні сторінки
+        window.addEventListener('DOMContentLoaded', () => {
+            updateProgressUI();
+            updateCalculator();
+            renderTips();
+        });
+    </script>
+</body>
+</html>
